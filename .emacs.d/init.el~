@@ -1,0 +1,37 @@
+(require 'mozc)
+(set-language-environment "Japanese")
+(setq default-input-method "japanese-mozc")
+(prefer-coding-system 'utf-8)
+
+(add-to-list 'package-archives
+             '("melpa" . "https://melpa.org/packages/"))
+
+(when (>= emacs-major-version 24)
+  ;; フォントセットを作る
+  (let* ((fontset-name "myfonts") ; フォントセットの名前
+         (size 14) ; ASCIIフォントのサイズ [9/10/12/14/15/17/19/20/...]
+         (asciifont "Source Code Pro") ; ASCIIフォント
+         (jpfont "Takaoゴシック") ; 日本語フォント
+         (font (format "%s-%d:weight=normal:slant=normal" asciifont size))
+         (fontspec (font-spec :family asciifont))
+         (jp-fontspec (font-spec :family jpfont))
+         (fsn (create-fontset-from-ascii-font font nil fontset-name)))
+    (set-fontset-font fsn 'japanese-jisx0213.2004-1 jp-fontspec)
+    (set-fontset-font fsn 'japanese-jisx0213-2 jp-fontspec)
+    (set-fontset-font fsn 'katakana-jisx0201 jp-fontspec) ; 半角カナ
+    (set-fontset-font fsn '(#x0080 . #x024F) fontspec)    ; 分音符付きラテン
+    (set-fontset-font fsn '(#x0370 . #x03FF) fontspec)    ; ギリシャ文字
+    )
+
+  ;; デフォルトのフレームパラメータでフォントセットを指定
+  (add-to-list 'default-frame-alist '(font . "fontset-myfonts"))
+
+  ;; フォントサイズの比を設定
+  (dolist (elt '(
+                 ("*Takao*" . 0.8)
+                 ))
+    (add-to-list 'face-font-rescale-alist elt))
+
+  ;; デフォルトフェイスにフォントセットを設定
+  ;; # これは起動時に default-frame-alist に従ったフレームが作成されない現象への対処
+
